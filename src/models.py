@@ -8,7 +8,7 @@ TODO binôme : ajouter ICI le modèle de votre nouvelle table
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, DateTime, Float, Integer, String, UniqueConstraint
+from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -57,14 +57,10 @@ class Mesure(Base):
     """Mesures IoT Acerox destinées au modèle (option A du contrat)."""
 
     __tablename__ = "mesures_iot"
-    __table_args__ = (
-        UniqueConstraint("timestamp", "sensor_id", name="uq_mesures_iot_timestamp_sensor"),
-    )
-
-    timestamp = Column(DateTime, nullable=False, index=True)
+    timestamp = Column(DateTime, primary_key=True, nullable=False, index=True)
     site = Column(String(50), nullable=False)
     line_id = Column(Integer, nullable=False)
-    sensor_id = Column(String(50), nullable=False)
+    sensor_id = Column(String(50), primary_key=True, nullable=False)
     temperature_c = Column(Float, nullable=False)
     vibration_mms = Column(Float, nullable=True)
     debit_uh = Column(Float, nullable=False)
