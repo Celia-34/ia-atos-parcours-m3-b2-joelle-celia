@@ -77,7 +77,7 @@ def main() -> None:
     finally:
         session.close()
 
-    print(
+    logger.info(
         "Pipeline : "
         f"{n_produits} produit(s) inséré(s), "
         f"{n_mesures} mesure(s) insérée(s) "
