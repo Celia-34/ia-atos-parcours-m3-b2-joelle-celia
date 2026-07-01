@@ -31,7 +31,7 @@ class Produit(Base):
 class Mesure(Base):
     """Mesures IoT Acerox destinées au modèle (option A du contrat)."""
 
-    __tablename__ = "measures"
+    __tablename__ = "mesures_iot"
     timestamp = Column(DateTime, primary_key=True, nullable=False, index=True)
     site = Column(String(50), nullable=False)
     line_id = Column(Integer, nullable=False)
@@ -42,7 +42,7 @@ class Mesure(Base):
 
     def __repr__(self) -> str:
         return (
-            "Measure("
+            "MesureIoT("
             f"timestamp={self.timestamp!r}, "
             f"sensor_id={self.sensor_id!r}, "
             f"site={self.site!r}, "
