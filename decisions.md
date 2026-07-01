@@ -14,6 +14,23 @@
 - ...
 - ...
 
+**Choix de la BDD: SQLite**
+- Axe 1 — Nature de la donnée
+SQLite : choisi car données structurées (lignes/colonnes) → besoin de schéma fixe et contraintes
+- Axe 2 — Motif d’accès
+SQLite : OLTP léger (insertions + lectures simples)
+- Axe 3 — Volume & fraîcheur
+SQLite : volume faible (<1 Go)
+- Axe 4 — Échelle 
+SQLite : pas de contrainte technique → solution la plus simple et suffisante
+
+Quand MongoDB?
+données semi‑structurées (JSON imbriqué)
+
+Quand Parquet?
+Donnée Non structurée — binaire (images, audio)
+
+
 ## 2. Stratégie de gestion des doublons
 
 > Comment gérez-vous les doublons à l'ingestion ? `INSERT OR IGNORE` SQL,
@@ -63,4 +80,4 @@
 
 ---
 
-*Décisions tracées par le binôme `<prénom1>` × `<prénom2>` — `<date>`.*
+*Décisions tracées par le binôme `Célia` × `joelle` — `01/07/2026`.*
