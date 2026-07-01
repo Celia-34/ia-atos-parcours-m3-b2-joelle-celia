@@ -2,9 +2,9 @@
 
 > **Binôme**: Joelle et Célia Le binôme désigné par la formatrice à 9h
 
----
+***
 
-## 🚀 Démarrage 
+## 🚀 Démarrage
 
 ```bash
 # 0. Clone votre repo binôme
@@ -29,24 +29,41 @@ python -m src.pipeline_existante
 # 4. Vérification des tests 
 pytest -v
 ```
----
+
+***
+
 ## Mise à jour du schéma de la DB
 
 ### Ajout d'une mise à jour du schéma de la DB
+
 Il peut etre nécessaire de faire des modification du schéma de la DB, mais tout changement doit etre versionné.
 Grâce à Alembic, à partir d'un modèle de donnée, il est possible de générer automatiquement le script de modification du schéma de la DB versionné.
+
 ```bash
 # pour créer une nouvelle version 
 alembic revision --autogenerate -m "add <table> table"
 ```
 
 ### Rollback d'une mise à jour du schéma de la DB
+
 Il peut être nécessaire de procéder à un rollback d'un script alembic de mise à jour de la base de données, aussi appelée 'version', lorsqu'une modification de la base de données n'est plus souhaitée (déploiement annulé, retrait d'un ticket) ou si celui-ci comporte des bugs. Cela peut aussi etre nécessaire en phase de maintenance lors de l'investigation pour éliminer des cause possible au problème rencontré.
+
 ```bash
 ## pour rollback une version (-1 rollback la dernière version, la head est placée à l'avant dernière version)
 alembic downgrade -1
 ```
----
+
+## Visualiser le contenu de la DB
+
+```bash
+# Installer Sqlite-web
+uv pip install sqlite-web
+# Démarrer SQlite web
+sqlite_web "data/acerox.db" --host 127.0.0.1 --port 8080
+# Visualiser des données dans un naviteur à l'url : http://127.0.0.1:8080
+```
+
+***
 
 
 
@@ -117,7 +134,7 @@ M3-B2-acerox-<binome>/
 └── README.md (ce fichier — à compléter avec schéma Mermaid + démarrage)
 ```
 
----
+***
 
 ## 📚 Mini-cours d'appui
 
@@ -138,7 +155,7 @@ Cf. [`./ressources/`](./ressources/) — 5 mini-cours, lecture juste-à-temps.
 | [`fiche_modele_acerox.md`](./ressources/fiche_modele_acerox.md) | À *qui* vous livrez : le modèle de prédiction NC déjà en production |
 | [`contrat_donnees_modele.md`](./ressources/contrat_donnees_modele.md) | La **table cible** + clauses de qualité que votre pipeline doit honorer |
 
----
+***
 
 ## 🧭 Démarche attendue
 
@@ -160,17 +177,17 @@ Cf. [`./ressources/`](./ressources/) — 5 mini-cours, lecture juste-à-temps.
 
 → Compétences visées : **C1 — imiter** renforcé + **C3 — transposer** (palier final).
 
----
+***
 
 ## ✅ Conventions de code
 
-- Python 3.11+
-- Type hints sur signatures publiques
-- Pas de `print` (utiliser `logging` si besoin)
-- `pathlib.Path` pour les chemins
-- Tous les commits binôme : `Co-authored-by: <prénom> <email>`
+* Python 3.11+
+* Type hints sur signatures publiques
+* Pas de `print` (utiliser `logging` si besoin)
+* `pathlib.Path` pour les chemins
+* Tous les commits binôme : `Co-authored-by: <prénom> <email>`
 
----
+***
 
 ## 🆘 Bloqué·e·s ?
 
