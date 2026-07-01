@@ -23,6 +23,7 @@ def ingest_mesures() -> int:
     Normalisation appliquée :
     - typage conforme à la BDD,
     - imputation des `vibration_mms` manquantes par la médiane de série,
+    - exclusion des mesures erratiques du capteur 3 à Roubaix,
     - suppression des doublons sur (timestamp, sensor_id),
     - warning sur les manquants et exclusion des lignes invalides.
     """
@@ -64,6 +65,25 @@ def ingest_mesures() -> int:
         logger.warning(
             "Impossible d'imputer vibration_mms: série sans valeur exploitable, "
             "les lignes resteront invalides si vibration_mms est manquante."
+        )
+
+    # Exclusion métier: valeurs erratiques observées pour le capteur 3 de Roubaix.
+    sensor_id_numeric = pd.to_numeric(df["sensor_id"], errors="coerce")
+    site_normalized = df["site"].astype("string").str.strip().str.lower()
+    erratic_mask = (
+        (site_normalized == "roubaix")
+        & (sensor_id_numeric == 3)
+        & (
+            df["temperature_c"].between(140.0, 160.0, inclusive="both")
+            | (df["vibration_mms"] == 12.0)
+        )
+    )
+    dropped_erratic: int = int(erratic_mask.sum())
+    if dropped_erratic > 0:
+        df = df.loc[~erratic_mask].copy()
+        logger.warning(
+            "%s ligne(s) supprimée(s) pour valeurs erratiques du capteur 3 à Roubaix.",
+            dropped_erratic,
         )
 
     # Tous les champs sont obligatoires

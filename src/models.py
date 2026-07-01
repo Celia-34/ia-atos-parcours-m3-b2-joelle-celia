@@ -42,7 +42,7 @@ class Mesure(Base):
 
     def __repr__(self) -> str:
         return (
-            "MesureIoT("
+            "Mesure("
             f"timestamp={self.timestamp!r}, "
             f"sensor_id={self.sensor_id!r}, "
             f"site={self.site!r}, "

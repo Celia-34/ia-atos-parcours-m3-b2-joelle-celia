@@ -242,3 +242,76 @@ def test_ingest_mesures_fichier_malforme_exception_bdd_inchangee(
         assert total == 0
     finally:
         session.close()
+
+
+def test_ingest_mesures_exclut_valeurs_erratiques_sensor3_roubaix(
+    tmp_engine, tmp_path, monkeypatch, caplog
+):
+    """Les mesures erratiques du capteur 3 de Roubaix sont exclues à l'ingestion."""
+    csv_path = tmp_path / "capteurs_iot_erratiques.csv"
+    pd.DataFrame(
+        [
+            {
+                "timestamp": "2026-04-01T00:00:00",
+                "site": "Roubaix",
+                "line_id": "2",
+                "sensor_id": "3",
+                "temperature_c": "145.0",
+                "vibration_mms": "4.2",
+                "debit_uh": "100.0",
+            },
+            {
+                "timestamp": "2026-04-01T00:01:00",
+                "site": "Roubaix",
+                "line_id": "2",
+                "sensor_id": "3",
+                "temperature_c": "85.0",
+                "vibration_mms": "12.0",
+                "debit_uh": "99.0",
+            },
+            {
+                "timestamp": "2026-04-01T00:02:00",
+                "site": "Roubaix",
+                "line_id": "2",
+                "sensor_id": "3",
+                "temperature_c": "90.0",
+                "vibration_mms": "5.0",
+                "debit_uh": "98.0",
+            },
+            {
+                "timestamp": "2026-04-01T00:03:00",
+                "site": "Lyon",
+                "line_id": "1",
+                "sensor_id": "3",
+                "temperature_c": "150.0",
+                "vibration_mms": "5.5",
+                "debit_uh": "102.0",
+            },
+        ]
+    ).to_csv(csv_path, index=False)
+
+    def _get_session_for_test():
+        Session = sessionmaker(bind=tmp_engine, expire_on_commit=False, autoflush=False)
+        return Session()
+
+    monkeypatch.setattr("src.ingest_mesures.MESURES_CSV", csv_path)
+    monkeypatch.setattr("src.ingest_mesures.get_session", _get_session_for_test)
+
+    inserted = ingest_mesures()
+
+    assert inserted == 2
+    assert "valeurs erratiques du capteur 3 à Roubaix" in caplog.text
+
+    session = _get_session_for_test()
+    try:
+        rows = session.execute(select(Mesure).order_by(Mesure.timestamp)).scalars().all()
+        assert len(rows) == 2
+        assert rows[0].site == "Roubaix"
+        assert rows[0].sensor_id == "3"
+        assert rows[0].temperature_c == 90.0
+        assert rows[0].vibration_mms == 5.0
+        assert rows[1].site == "Lyon"
+        assert rows[1].sensor_id == "3"
+        assert rows[1].temperature_c == 150.0
+    finally:
+        session.close()

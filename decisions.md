@@ -82,11 +82,10 @@ tests/test_pipeline_initial.py::test_ingest_mesures_fichier_malforme_exception_b
 
 | Clause du contrat | Honorée ? | Comment / où dans le code |
 |---|---|---|
-| Unicité respectée (ingestion idempotente) | ☐ | ... |
-| Manquants traités explicitement | ☐ | ... |
-| Capteur défaillant Roubaix L3 : repéré + décision tracée (écarter / marquer / aval) *(option A)* | ☐ / s.o. | ... |
-| `ouvrier_id` hashé ou retiré, jamais en clair *(option B)* | ☐ / s.o. | ... |
-| Types conformes (DateTime, numériques typés) | ☐ | ... |
+| Unicité respectée (ingestion idempotente) | [x] | Le pipeline n'insère pas plusieurs fois les memes données. Clé d'unicité des mesures composée de "timestamp"+"sensor_id". Unicité double : en DB (primary_key) et lors de l'ingestion car on supprime les doublons avant insertion en table.|
+| Manquants traités explicitement | [x] | Nous avons choisi de conserver les manquants de la donnée vibration_mms (1,5%) par la médiane de la serie. En effet, dans une premier temps nous préconisons de le conserver, et de vérifier si cela est pertinent lors de l'entrainement du modèle. |
+| Capteur défaillant Roubaix L3 : repéré + décision tracée (écarter / marquer / aval)  | [x] | Nouys avons décidé de supprimer les valeurs erratiques du capteur 3 du site de Roubaix. Le nettoyage est réalisé lors de l'ingestion des données dans ingest_mesures.py |
+| Types conformes (DateTime, numériques typés) | [x] | Mapping dans le type des colonnes en DB ainsi que lors de l'ingestion dans ingest_mesures.py |
 
 ---
 
