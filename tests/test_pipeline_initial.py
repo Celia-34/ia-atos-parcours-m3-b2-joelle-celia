@@ -5,12 +5,12 @@ en ajoutant votre nouvelle source, ces tests sautent et vous le saurez tout
 de suite.
 """
 from __future__ import annotations
-
+import pytest
 import pandas as pd
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
 
-from src.models import Mesure, Produit
+from src.models import Base, Mesure, Produit
 from src.pipeline_existante import ingest_mesures, main
 
 
@@ -116,8 +116,8 @@ def test_ingest_mesures_normalise_dedoublonne_et_loggue_manquants(tmp_engine, tm
         Session = sessionmaker(bind=tmp_engine, expire_on_commit=False, autoflush=False)
         return Session()
 
-    monkeypatch.setattr("src.pipeline_existante.MESURES_CSV", csv_path)
-    monkeypatch.setattr("src.pipeline_existante.get_session", _get_session_for_test)
+    monkeypatch.setattr("src.ingest_mesures.MESURES_CSV", csv_path)
+    monkeypatch.setattr("src.ingest_mesures.get_session", _get_session_for_test)
 
     inserted = ingest_mesures()
 
@@ -136,11 +136,22 @@ def test_ingest_mesures_normalise_dedoublonne_et_loggue_manquants(tmp_engine, tm
         session.close()
 
 
-def test_main_lance_les_deux_ingestions_et_affiche_les_compteurs(monkeypatch, capsys):
+def test_main_lance_les_deux_ingestions_et_affiche_les_compteurs(tmp_engine, monkeypatch, capsys):
     """Le point d'entree appelle produits + mesures et affiche les deux comptes."""
-    monkeypatch.setattr("src.pipeline_existante.init_db", lambda: None)
+    
+    def _get_session_for_test():
+        Session = sessionmaker(bind=tmp_engine, expire_on_commit=False, autoflush=False)
+        return Session()
+    
+    # Créer les tables
+    from src.db import engine as prod_engine
+    def init_db_test():
+        Base.metadata.create_all(tmp_engine)
+    
+    monkeypatch.setattr("src.pipeline_existante.init_db", init_db_test)
     monkeypatch.setattr("src.pipeline_existante.ingest_produits", lambda: 3)
     monkeypatch.setattr("src.pipeline_existante.ingest_mesures", lambda: 7)
+    monkeypatch.setattr("src.pipeline_existante.get_session", _get_session_for_test)
 
     main()
 
@@ -180,8 +191,8 @@ def test_ingest_mesures_est_idempotente(tmp_engine, tmp_path, monkeypatch):
         Session = sessionmaker(bind=tmp_engine, expire_on_commit=False, autoflush=False)
         return Session()
 
-    monkeypatch.setattr("src.pipeline_existante.MESURES_CSV", csv_path)
-    monkeypatch.setattr("src.pipeline_existante.get_session", _get_session_for_test)
+    monkeypatch.setattr("src.ingest_mesures.MESURES_CSV", csv_path)
+    monkeypatch.setattr("src.ingest_mesures.get_session", _get_session_for_test)
 
     inserted_first = ingest_mesures()
     inserted_second = ingest_mesures()
@@ -193,5 +204,43 @@ def test_ingest_mesures_est_idempotente(tmp_engine, tmp_path, monkeypatch):
     try:
         total = session.query(Mesure).count()
         assert total == 2
+    finally:
+        session.close()
+
+def test_ingest_mesures_fichier_malforme_exception_bdd_inchangee(
+    tmp_engine, tmp_path, monkeypatch
+    ):
+    """Un fichier malformé doit lever une erreur claire et ne rien insérer."""
+    csv_path = tmp_path / "capteurs_iot_malforme.csv"
+
+    # CSV malformé : colonne obligatoire sensor_id absente
+    pd.DataFrame(
+        [
+            {
+                "timestamp": "2026-04-01T00:00:00",
+                "site": "Lyon",
+                "line_id": "1",
+                # "sensor_id" manquant volontairement
+                "temperature_c": "99",
+                "vibration_mms": "5.2",
+                "debit_uh": "101.0",
+            }
+        ]
+    ).to_csv(csv_path, index=False)
+
+    def _get_session_for_test():
+        Session = sessionmaker(bind=tmp_engine, expire_on_commit=False, autoflush=False)
+        return Session()
+
+    monkeypatch.setattr("src.ingest_mesures.MESURES_CSV", csv_path)
+    monkeypatch.setattr("src.ingest_mesures.get_session", _get_session_for_test)
+
+    with pytest.raises((ValueError, KeyError)):
+        ingest_mesures()
+
+    session = _get_session_for_test()
+    try:
+        total = session.query(Mesure).count()
+        assert total == 0
     finally:
         session.close()
