@@ -33,16 +33,25 @@ Quand Parquet?
 Donnée structurée, avec faible stockage, mais pour le requetage et une mise à jour régulière des données, il vaut mieux utiliser un OLTP léger (SQLite).
 
 
-## 2. Stratégie de gestion des doublons et des manquants
+## 2. Stratégie de gestion des doublons, des manquants et des valeurs erratiques
+
+### Gestion des doublons
 
 **Choix** : Suppression des doublons durant l'ingest. On garde le dernier.
 
 **Argument** : Les doublons sont détectés sur la clé "timestamp"-"sensor_id". Le traitement est fait durant l'ingest lors du traitement des données. En gardant le dernier, on conserve la dernière donnée insérée dans le fichier.
 
+### Gestion des manquants
+
 **Choix** : Conservation des manquants.
 
 **Argument** : Les manquants sont actuellement présents sur la donnée vibration ("vibration_mms") et représentent 1.5% des données. Ils sont donc peu représentatifs. En DB ils ont d'abord été géré en acceptant le null, puis nous avons décidé de remplacer la valeur manquante par la médiane. Malgré le traitement, si un absent est encore présent, il sera supprimé et loggué en warning lors de l'ingestion. Ainsi, nous avons choisis de conserver les lignes contenant des manquants (vibration_mms), mais nous préconisons de vérifier à l'entrainement s'il est pertinent de les conserver ou s'il vaut mieux les supprimer.
 
+### Gestion des valeurs erratiques
+
+**Choix** : Suppression des valeurs erratiques du capteurs 3 sur le site de Roubaix.
+
+**Argument** : Les valeurs erratiques du capteur 3 du site de Roubaix sont très éloignées des autres (T° 140-160 °C, vibration figée à 12.0). Pour ne pas biaiser le jeu de données fournit au modèle, nous avons décidé de les supprimer.
 
 ## 3. Stratégie de tests
 
@@ -70,7 +79,7 @@ tests/test_pipeline_initial.py::test_ingest_mesures_fichier_malforme_exception_b
 
 ## 4. Convention binôme
 
-- Driver / Navigator switch toutes les **30 min** : oui
+- Driver / Navigator switch toutes les **30 min** : oui, et répartition des taches avec relecture croisée
 - Tous les commits significatifs ont `Co-authored-by:` : oui 
 - Branche perso ou main partagée : main partagée
 
@@ -84,7 +93,7 @@ tests/test_pipeline_initial.py::test_ingest_mesures_fichier_malforme_exception_b
 |---|---|---|
 | Unicité respectée (ingestion idempotente) | [x] | Le pipeline n'insère pas plusieurs fois les memes données. Clé d'unicité des mesures composée de "timestamp"+"sensor_id". Unicité double : en DB (primary_key) et lors de l'ingestion car on supprime les doublons avant insertion en table.|
 | Manquants traités explicitement | [x] | Nous avons choisi de conserver les manquants de la donnée vibration_mms (1,5%) par la médiane de la serie. En effet, dans une premier temps nous préconisons de le conserver, et de vérifier si cela est pertinent lors de l'entrainement du modèle. |
-| Capteur défaillant Roubaix L3 : repéré + décision tracée (écarter / marquer / aval)  | [x] | Nouys avons décidé de supprimer les valeurs erratiques du capteur 3 du site de Roubaix. Le nettoyage est réalisé lors de l'ingestion des données dans ingest_mesures.py |
+| Capteur défaillant Roubaix L3 : repéré + décision tracée (écarter / marquer / aval)  | [x] | Nous avons décidé de supprimer les valeurs erratiques du capteur 3 du site de Roubaix. Le nettoyage est réalisé lors de l'ingestion des données dans ingest_mesures.py |
 | Types conformes (DateTime, numériques typés) | [x] | Mapping dans le type des colonnes en DB ainsi que lors de l'ingestion dans ingest_mesures.py |
 
 ---
