@@ -100,7 +100,7 @@ def ingest_mesures() -> int:
 
     # Suppression des doublons dans le fichier source.
     before_drop_duplicates = len(df)
-    df = df.drop_duplicates(subset=["timestamp", "sensor_id"], keep="first")
+    df = df.drop_duplicates(subset=["timestamp", "sensor_id"], keep="last")
     dropped_duplicates = before_drop_duplicates - len(df)
     if dropped_duplicates > 0:
         logger.warning("%s doublon(s) supprimé(s) sur (timestamp, sensor_id).", dropped_duplicates)

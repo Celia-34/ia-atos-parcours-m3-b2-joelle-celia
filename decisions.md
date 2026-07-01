@@ -35,12 +35,9 @@ Donnée structurée, avec faible stockage, mais pour le requetage et une mise à
 
 ## 2. Stratégie de gestion des doublons
 
-> Comment gérez-vous les doublons à l'ingestion ? `INSERT OR IGNORE` SQL,
-> upsert applicatif, dédup pandas avant insertion ?
+**Choix** : Suppression des doublons durant l'ingest. On garde le dernier.
 
-**Choix** : `INSERT`
-
-**Argument** : Cela permet d'écraser la donnée plus ancienne et ainsi de maintenir des données plus à jour pour le modèle.
+**Argument** : Les doublons sont détectés sur la clé "timestamp"-"sensor_id". Le traitement est fait durant l'ingest lors du traitement des données. En gardant le dernier, on conserve la dernière donnée insérée dans le fichier.
 
 ## 3. Stratégie de tests
 
