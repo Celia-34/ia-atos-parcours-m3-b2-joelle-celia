@@ -48,6 +48,32 @@ alembic downgrade -1
 ```
 ---
 
+
+## Schéma
+
+```mermaid
+flowchart LR
+    %% TODO — Compléter avec tes 3 sources retenues + 1 bonus si traité
+
+    SRC1[📡 Capteurs IoT<br/>Format :CSV<br/>Volume : 51k lignes x 9 colonnes<br/>Fréquence : continue]
+
+
+    INGEST[🔄 Ingestion<br/>ingest_measures.py + SQLAlchemy]
+    SHEMA[🧱 Shéma<br/>Migration Alembic]
+    BDD[(🗄️ BDD pivot<br/>SQLite<br/>Tables: produits + mesures_iot)]
+    MODEL[🧠 Modèle existant Acerox<br/>prédiction défauts qualité]
+
+    SRC1 --> |source retenue|INGEST
+    INGEST -->|normalisation + non duplication | BDD
+    SHEMA -->|évolution du Shéma| BDD
+    BDD -->|consommée par| MODEL
+
+    classDef source fill:#e1f5ff,stroke:#0277bd
+    classDef tofix fill:#fff4e1,stroke:#c97a00,stroke-dasharray: 5 5
+    class SRC1 source
+    class INGEST tofix
+```
+
 ## 📁 Structure du repo
 
 ```
