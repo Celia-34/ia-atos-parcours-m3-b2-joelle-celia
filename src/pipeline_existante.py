@@ -136,10 +136,16 @@ def ingest_mesures() -> int:
 
 
 def main() -> None:
-    """Init BDD + chargement référentiel produits."""
+    """Init BDD + chargement référentiel produits et mesures."""
     init_db()
-    n = ingest_produits()
-    print(f"Pipeline existante : {n} produit(s) inséré(s) (idempotent — relancer ne duplique pas).")
+    n_produits = ingest_produits()
+    n_mesures = ingest_mesures()
+    print(
+        "Pipeline : "
+        f"{n_produits} produit(s) inséré(s), "
+        f"{n_mesures} mesure(s) insérée(s) "
+        "(idempotent — relancer ne duplique pas)."
+    )
 
 
 if __name__ == "__main__":
