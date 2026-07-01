@@ -1,4 +1,4 @@
-# Decisions — Binôme `<prénom1>` × `<prénom2>` (M3-B2 Acerox)
+# Decisions — Binôme `Joelle` × `Celia` (M3-B2 Acerox)
 
 > Document à compléter à 2 pendant la phase sync (15 min avant de coder).
 > Servira de référence pendant la phase async + RDV vendredi.
@@ -7,12 +7,14 @@
 
 > Quelle source intégrez-vous en M3-B2 ? Argumentez en 3 lignes max.
 
-**Choix** : ☐ `capteurs_iot.csv` (CSV ~51k lignes) ☐ `erp_export.json` (JSON ~2k ordres)
+**Choix** : 
+* [x] `capteurs_iot.csv` (CSV ~51k lignes)
+* [ ] `erp_export.json` (JSON ~2k ordres)
 
 **Argument** :
-- ...
-- ...
-- ...
+- Métier: source de données pertinentes pour anticiper les phases de maintenance
+- Volume : source avec un volume de données important (~51k mesures), ce qui permettra d'alimenter le modèle avec une granularité plus fine.
+- Type : donnée structurée de type CSV
 
 **Choix de la BDD: SQLite**
 - Axe 1 — Nature de la donnée
@@ -36,21 +38,11 @@ Donnée Non structurée — binaire (images, audio)
 > Comment gérez-vous les doublons à l'ingestion ? `INSERT OR IGNORE` SQL,
 > upsert applicatif, dédup pandas avant insertion ?
 
-**Choix** : ...
+**Choix** : `INSERT`
 
-**Argument** : ...
+**Argument** : Cela permet d'écraser la donnée plus ancienne et ainsi de maintenir des données plus à jour pour le modèle.
 
-## 3. Stratégie RGPD (si vous prenez ERP)
-
-> Si vous prenez ERP : que faites-vous de `ouvrier_id` ?
-
-- ☐ Suppression pure
-- ☐ Hash salé (avec quel sel ?)
-- ☐ Conservation pseudonymisée (justifier)
-
-**Argument** : ...
-
-## 4. Stratégie de tests
+## 3. Stratégie de tests
 
 > Quels 3 tests minimum allez-vous écrire ?
 
@@ -58,13 +50,13 @@ Donnée Non structurée — binaire (images, audio)
 2. Ingestion d'un fichier valide → N lignes insérées sans doublon : ...
 3. Ingestion fichier malformé → exception claire, BDD inchangée : ...
 
-## 5. Convention binôme
+## 4. Convention binôme
 
-- Driver / Navigator switch toutes les **30 min** : ☐ oui ☐ adapté à...
-- Tous les commits significatifs ont `Co-authored-by:` : ☐ oui ☐ ...
-- Branche perso ou main partagée : ...
+- Driver / Navigator switch toutes les **30 min** : oui
+- Tous les commits significatifs ont `Co-authored-by:` : oui 
+- Branche perso ou main partagée : main partagée
 
-## 6. Conformité au contrat de données
+## 5. Conformité au contrat de données
 
 > Confrontez votre livraison à `ressources/contrat_donnees_modele.md`. Pour
 > chaque clause de qualité **honorée** : laquelle, comment, et **où** dans le
@@ -80,4 +72,4 @@ Donnée Non structurée — binaire (images, audio)
 
 ---
 
-*Décisions tracées par le binôme `Célia` × `joelle` — `01/07/2026`.*
+*Décisions tracées par le binôme `Joelle` × `Célia` — `01/07/2026`.*
