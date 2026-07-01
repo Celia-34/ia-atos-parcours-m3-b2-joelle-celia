@@ -30,7 +30,7 @@ Quand MongoDB?
 données semi‑structurées (JSON imbriqué)
 
 Quand Parquet?
-Donnée Non structurée — binaire (images, audio)
+Donnée structurée, avec faible stockage, mais pour le requetage et une mise à jour régulière des données, il vaut mieux utiliser un OLTP léger (SQLite).
 
 
 ## 2. Stratégie de gestion des doublons
