@@ -28,35 +28,10 @@ class Produit(Base):
     def __repr__(self) -> str:
         return f"Produit(ref={self.produit_ref!r}, nom={self.nom!r})"
 
-
-# ----------------------------------------------------------------------------
-# TODO BINÔME — Ajoutez votre nouvelle table ici
-# ----------------------------------------------------------------------------
-#
-# ⚠️ Votre table utilisera des types non encore importés en haut de ce
-#    fichier (DateTime, Float, ForeignKey, UniqueConstraint…). Ajoutez aux
-#    imports sqlalchemy ce dont vous avez besoin, sinon → NameError.
-#
-#  Ajoutez ici le modèle correspondant au contrat de données.
-#
-#  Consultez :
-#
-#  ressources/contrat_donnees_modele.md
-#
-#  Vérifiez notamment :
-#
-#  - types
-#  - contraintes
-#  - index
-#  - clés étrangères
-#  - contraintes d'unicité
-#
-
-
 class Mesure(Base):
     """Mesures IoT Acerox destinées au modèle (option A du contrat)."""
 
-    __tablename__ = "mesures_iot"
+    __tablename__ = "measures"
     timestamp = Column(DateTime, primary_key=True, nullable=False, index=True)
     site = Column(String(50), nullable=False)
     line_id = Column(Integer, nullable=False)
@@ -67,7 +42,7 @@ class Mesure(Base):
 
     def __repr__(self) -> str:
         return (
-            "Mesure("
+            "Measure("
             f"timestamp={self.timestamp!r}, "
             f"sensor_id={self.sensor_id!r}, "
             f"site={self.site!r}, "
