@@ -1,17 +1,15 @@
-# M3-B2 — Squelette repo (pipeline + migration Acerox)
+# M3-B2 (pipeline + migration Acerox)
 
-> **Repo template GitHub.** Le binôme désigné par la formatrice à 9h
-> mercredi crée son repo perso depuis ce template (« Use this template »)
-> et invite l'autre comme collaborateur.
+> **Binôme**: Joelle et Célia Le binôme désigné par la formatrice à 9h
 
 ---
 
-## 🚀 Démarrage (5 commandes)
+## 🚀 Démarrage 
 
 ```bash
 # 0. Clone votre repo binôme
-git clone git@github.com:<owner>/M3-B2-acerox-<binome>.git
-cd M3-B2-acerox-<binome>
+git clone git@github.com/Celia-34/ia-atos-parcours-m3-b2-joelle-celia.git
+cd ia-atos-parcours-m3-b2-joelle-celia
 
 # 1. Environnement virtuel
 python -m venv .venv && source .venv/bin/activate
@@ -20,21 +18,34 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Init BDD (pipeline existante)
+## pour savoir où se situe la head (sur quelle version)
+alembic current -v
+## pour mettre à jour la head sur la dernière version
 alembic upgrade head
+
+# 3. Faire tourner la pipeline
 python -m src.pipeline_existante
 
-# 4. Vérification tests initiaux verts
+# 4. Vérification des tests 
 pytest -v
 ```
+---
+## Mise à jour du schéma de la DB
 
-Si ces 5 commandes marchent, votre poste est prêt. **La pipeline
-existante doit tourner avant que vous y touchiez.**
+### Ajout d'une mise à jour du schéma de la DB
+Il peut etre nécessaire de faire des modification du schéma de la DB, mais tout changement doit etre versionné.
+Grâce à Alembic, à partir d'un modèle de donnée, il est possible de générer automatiquement le script de modification du schéma de la DB versionné.
+```bash
+# pour créer une nouvelle version 
+alembic revision --autogenerate -m "add <table> table"
+```
 
-> 📦 Les 2 sources `capteurs_iot.csv` et `erp_export.json` (issues de
-> M3-B1) sont **versionnées dans ce template** — vous en avez besoin
-> pour coder l'ingestion. La BDD produite (`data/acerox.db`) reste, elle,
-> hors commit (`.gitignore`).
-
+### Rollback d'une mise à jour du schéma de la DB
+Il peut être nécessaire de procéder à un rollback d'un script alembic de mise à jour de la base de données, aussi appelée 'version', lorsqu'une modification de la base de données n'est plus souhaitée (déploiement annulé, retrait d'un ticket) ou si celui-ci comporte des bugs. Cela peut aussi etre nécessaire en phase de maintenance lors de l'investigation pour éliminer des cause possible au problème rencontré.
+```bash
+## pour rollback une version (-1 rollback la dernière version, la head est placée à l'avant dernière version)
+alembic downgrade -1
+```
 ---
 
 ## 📁 Structure du repo
@@ -51,13 +62,13 @@ M3-B2-acerox-<binome>/
 │   ├── db.py                         # engine + session SQLAlchemy
 │   ├── models.py                     # Produit + TODO votre table
 │   ├── pipeline_existante.py         # ne pas modifier
-│   └── ingest_<source>.py            # à créer (votre code)
+│   └── ingest_mesures.py            # à créer (votre code)
 ├── alembic/
 │   ├── env.py
 │   ├── script.py.mako
 │   └── versions/
-│       └── 0001_initial_schema.py    # table produits — fourni
-│       # 0002_add_<table>.py         # votre migration à créer
+│       ├── 0001_initial_schema.py    # table produits
+│       └── d245190e3547_add_measures_table.py  # table mesures_iot
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py                   # fixtures BDD éphémère
