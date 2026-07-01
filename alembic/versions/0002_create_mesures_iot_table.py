@@ -26,7 +26,7 @@ def upgrade() -> None:
     sa.Column('line_id', sa.Integer(), nullable=False),
     sa.Column('sensor_id', sa.String(length=50), nullable=False),
     sa.Column('temperature_c', sa.Float(), nullable=False),
-    sa.Column('vibration_mms', sa.Float(), nullable=True),
+    sa.Column('vibration_mms', sa.Float(), nullable=False),
     sa.Column('debit_uh', sa.Float(), nullable=False),
     sa.PrimaryKeyConstraint('timestamp', 'sensor_id')
     )
