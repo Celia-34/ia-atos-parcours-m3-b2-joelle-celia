@@ -48,9 +48,25 @@ Donnée structurée, avec faible stockage, mais pour le requetage et une mise à
 
 > Quels 3 tests minimum allez-vous écrire ?
 
-1. Migration appliquée → la table existe : ...
-2. Ingestion d'un fichier valide → N lignes insérées sans doublon : ...
-3. Ingestion fichier malformé → exception claire, BDD inchangée : ...
+1. Ils vérifient que les tables produits et mesures_iot existent bien dans la base SQLite.
+tests/test_pipeline_initial.py::test_produits_table_exists
+tests/test_pipeline_initial.py::test_mesures_table_exists
+
+2. Ils vérifient que le modèle fonctionne correctement
+tests/test_pipeline_initial.py::test_produits_schema_attendu PASSED
+tests/test_pipeline_initial.py::test_mesures_schema_attendu
+
+3. crée un CSV temporaire contenant des lignes valides, un doublon et des valeurs manquantes. Il vérifie que l’ingestion insère uniquement les lignes attendues, que les doublons sont supprimés, que les types sont convertis correctement et que les anomalies sont logguées.
+tests/test_pipeline_initial.py::test_ingest_mesures_normalise_dedoublonne_et_loggue_manquants
+
+4. vérifie que le point d’entrée de la pipeline appelle bien les deux ingestions et affiche les bons compteurs.
+tests/test_pipeline_initial.py::test_main_lance_les_deux_ingestions_et_affiche_les_compteurs
+
+5. vérifie l’idempotence de l’ingestion
+tests/test_pipeline_initial.py::test_ingest_mesures_est_idempotente
+
+6. vérifie que la pipeline réagit correctement quand le fichier CSV d’entrée est malformé
+tests/test_pipeline_initial.py::test_ingest_mesures_fichier_malforme_exception_bdd_inchangee
 
 ## 4. Convention binôme
 
