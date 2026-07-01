@@ -33,11 +33,16 @@ Quand Parquet?
 Donnée structurée, avec faible stockage, mais pour le requetage et une mise à jour régulière des données, il vaut mieux utiliser un OLTP léger (SQLite).
 
 
-## 2. Stratégie de gestion des doublons
+## 2. Stratégie de gestion des doublons et des manquants
 
 **Choix** : Suppression des doublons durant l'ingest. On garde le dernier.
 
 **Argument** : Les doublons sont détectés sur la clé "timestamp"-"sensor_id". Le traitement est fait durant l'ingest lors du traitement des données. En gardant le dernier, on conserve la dernière donnée insérée dans le fichier.
+
+**Choix** : Conservation des manquants.
+
+**Argument** : Les manquants sont actuellement présents sur la donnée vibration ("vibration_mms") et représentent 1.5% des données. Ils sont donc peu représentatifs. En DB ils ont d'abord été géré en acceptant le null, puis nous avons décidé de remplacer la valeur manquante par la médiane. Malgré le traitement, si un absent est encore présent, il sera supprimé et loggué en warning lors de l'ingestion. Ainsi, nous avons choisis de conserver les lignes contenant des manquants (vibration_mms), mais nous préconisons de vérifier à l'entrainement s'il est pertinent de les conserver ou s'il vaut mieux les supprimer.
+
 
 ## 3. Stratégie de tests
 

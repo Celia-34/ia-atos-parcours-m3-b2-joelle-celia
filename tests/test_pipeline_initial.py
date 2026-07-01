@@ -43,14 +43,14 @@ def test_produits_schema_attendu(tmp_session):
 
 
 def test_mesures_schema_attendu(tmp_session):
-    """Les colonnes Mesure acceptent une insertion conforme (vibration nullable)."""
+    """Les colonnes Mesure acceptent une insertion conforme (vibration non nullable)."""
     m = Mesure(
         timestamp=pd.Timestamp("2026-04-01T00:00:00").to_pydatetime(),
         site="Lyon",
         line_id=1,
         sensor_id="SLYO-L1-T01",
         temperature_c=72.4,
-        vibration_mms=None,
+        vibration_mms=3.2,
         debit_uh=105.8,
     )
     tmp_session.add(m)
@@ -65,11 +65,11 @@ def test_mesures_schema_attendu(tmp_session):
 
     assert result.site == "Lyon"
     assert result.line_id == 1
-    assert result.vibration_mms is None
+    assert result.vibration_mms == 3.2
 
 
 def test_ingest_mesures_normalise_dedoublonne_et_loggue_manquants(tmp_engine, tmp_path, monkeypatch, caplog):
-    """L'ingestion Mesure applique typage, dedoublonnage et warning sur manquants."""
+    """L'ingestion Mesure applique typage, imputation médiane et dédoublonnage."""
     csv_path = tmp_path / "capteurs_iot_test.csv"
     pd.DataFrame(
         [
@@ -131,7 +131,7 @@ def test_ingest_mesures_normalise_dedoublonne_et_loggue_manquants(tmp_engine, tm
         assert len(rows) == 2
         assert isinstance(rows[0].line_id, int)
         assert isinstance(rows[0].temperature_c, float)
-        assert rows[1].vibration_mms is None
+        assert rows[1].vibration_mms == 5.2
     finally:
         session.close()
 

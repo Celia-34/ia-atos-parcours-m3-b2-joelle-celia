@@ -62,7 +62,7 @@ class Mesure(Base):
     line_id = Column(Integer, nullable=False)
     sensor_id = Column(String(50), primary_key=True, nullable=False)
     temperature_c = Column(Float, nullable=False)
-    vibration_mms = Column(Float, nullable=True)
+    vibration_mms = Column(Float, nullable=False)
     debit_uh = Column(Float, nullable=False)
 
     def __repr__(self) -> str:

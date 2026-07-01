@@ -65,6 +65,7 @@ def ingest_mesures() -> int:
 
     Normalisation appliquée :
     - typage conforme à la BDD,
+    - imputation des `vibration_mms` manquantes par la médiane de série,
     - suppression des doublons sur (timestamp, sensor_id),
     - warning sur les manquants et exclusion des lignes invalides.
     """
@@ -83,6 +84,7 @@ def ingest_mesures() -> int:
         "line_id",
         "sensor_id",
         "temperature_c",
+        "vibration_mms",
         "debit_uh",
     ]
 
@@ -91,7 +93,17 @@ def ingest_mesures() -> int:
         if int(count) > 0:
             logger.warning("Colonne '%s' contient %s valeur(s) manquante(s).", col, int(count))
 
-    # La vibration peut être null selon le contrat; les autres champs obligatoires non.
+    median_vibration = df["vibration_mms"].median(skipna=True)
+    if pd.notna(median_vibration):
+        df["vibration_mms"] = df["vibration_mms"].fillna(median_vibration)
+    else:
+        logger.warning(
+            "Impossible d'imputer vibration_mms: série sans valeur exploitable, "
+            "les lignes resteront invalides si vibration_mms est manquante."
+        )
+
+    # Tous les champs sont obligatoires après imputation de vibration_mms.
+    required_cols = required_cols 
     before_drop_missing = len(df)
     df = df.dropna(subset=required_cols)
     dropped_missing = before_drop_missing - len(df)
@@ -121,9 +133,7 @@ def ingest_mesures() -> int:
                     line_id=int(row["line_id"]),
                     sensor_id=str(row["sensor_id"]),
                     temperature_c=float(row["temperature_c"]),
-                    vibration_mms=(
-                        None if pd.isna(row["vibration_mms"]) else float(row["vibration_mms"])
-                    ),
+                    vibration_mms=float(row["vibration_mms"]),
                     debit_uh=float(row["debit_uh"]),
                 )
             )
